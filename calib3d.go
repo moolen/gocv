@@ -5,7 +5,9 @@ package gocv
 #include "calib3d.h"
 */
 import "C"
-import "image"
+import (
+	"image"
+)
 
 // Calib is a wrapper around OpenCV's "Camera Calibration and 3D Reconstruction" of
 // Fisheye Camera model
@@ -138,3 +140,44 @@ func DrawChessboardCorners(image *Mat, patternSize image.Point, corners Mat, pat
 	}
 	C.DrawChessboardCorners(image.Ptr(), sz, corners.Ptr(), C.bool(patternWasFound))
 }
+
+type CalibCamFlag int
+
+const (
+	CalibCamUseIntrinsicGuess CalibCamFlag = 0x00001
+	CalibCamFixAspectRatio                 = 0x00002
+	CalibCamFixPrincipalPoint              = 0x00004
+	CalibCamZeroTangentDist                = 0x00008
+	CalibCamFixFocalLength                 = 0x00010
+	CalibCamFixK1                          = 0x00020
+	CalibCamFixK2                          = 0x00040
+	CalibCamFixK3                          = 0x00080
+	CalibCamFixK4                          = 0x00800
+	CalibCamFixK5                          = 0x01000
+	CalibCamFixK6                          = 0x02000
+	CalibCamRationalModel                  = 0x04000
+	CalibCamThinPrismModel                 = 0x08000
+	CalibCamFixS1S2S3S4                    = 0x10000
+	CalibCamTiltedModel                    = 0x40000
+	CalibCamFixTauXTauY                    = 0x80000
+	CalibCamFixTangentDist                 = 0x200000
+	CalibCamFixIntrinsic                   = 0x00100
+	CalibCamSameFocalLength                = 0x00200
+	CalibCamZeroDisparity                  = 0x00400
+	CalibCamUseLU                          = (1 << 17)
+	CalibCamUseExtrinsicGuess              = (1 << 22)
+)
+
+func CalibrateCamera(objectPoints []Mat, imagePoints []Mat, imageSize image.Point, cameraMatrix Mat, distCoeffs Mat, flags int) float64 {
+	pSize := C.struct_Size{
+		width:  C.int(imageSize.X),
+		height: C.int(imageSize.Y),
+	}
+	cRVecs := C.struct_Mats{}
+	cTVecs := C.struct_Mats{}
+	cFlags := C.int(flags)
+	ret := C.CalibrateCamera(toCMats(objectPoints), toCMats(imagePoints), pSize, cameraMatrix.Ptr(), distCoeffs.Ptr(), &(cRVecs), &(cTVecs), cFlags)
+	return float64(ret)
+}
+
+func CalibrateFisheyeCamera() {}

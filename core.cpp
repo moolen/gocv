@@ -281,6 +281,16 @@ void Mat_SetFloat3(Mat m, int x, int y, int z, float val) {
     m->at<float>(x, y, z) = val;
 }
 
+void Mat_SetPoint2f(Mat m, int x, int y, Point2f val) {
+    cv::Point2f p(val.x, val.y);
+    m->at<cv::Point2f>(x, y) = p;
+}
+
+void Mat_SetPoint3f(Mat m, int x, int y, Point3f val) {
+    cv::Point3f p(val.x, val.y, val.z);
+    m->at<cv::Point3f>(x, y) = p;
+}
+
 // Mat_SetDouble set a specific row/col value from this Mat expecting
 // each element to contain a double aka CV_64F.
 void Mat_SetDouble(Mat m, int row, int col, double val) {

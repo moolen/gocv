@@ -44,6 +44,13 @@ typedef struct Point2f {
     float y;
 } Point2f;
 
+// Wrapper for an individual cv::Point3f
+typedef struct Point3f {
+    float x;
+    float y;
+    float z;
+} Point3f;
+
 // Wrapper for an individual cv::cvPoint
 typedef struct Point {
     int x;
@@ -62,6 +69,12 @@ typedef struct Points2f {
     int length;
 } Points2f;
 
+// Wrapper for the vector of Point3f structs aka std::vector<Point3f>
+typedef struct Points3f {
+    Point3f* points;
+    int length;
+} Points3f;
+
 // Contour is alias for Points
 typedef Points Contour;
 
@@ -73,6 +86,18 @@ typedef struct Contours {
     Contour* contours;
     int length;
 } Contours;
+
+// Wrapper for the vector of Point3f vectors aka std::vector< std::vector<Point3f> >
+typedef struct ObjectPoints {
+    Points3f* points;
+    int length;
+} ObjectPoints;
+
+// Wrapper for the vector of Point2f vectors aka std::vector< std::vector<Point2f> >
+typedef struct ImagePoints {
+    Points2f* points;
+    int length;
+} ImagePoints;
 
 // Wrapper for an individual cv::cvRect
 typedef struct Rect {
@@ -283,6 +308,8 @@ void Mat_SetInt(Mat m, int row, int col, int32_t val);
 void Mat_SetInt3(Mat m, int x, int y, int z, int32_t val);
 void Mat_SetFloat(Mat m, int row, int col, float val);
 void Mat_SetFloat3(Mat m, int x, int y, int z, float val);
+void Mat_SetPoint2f(Mat m, int x, int y, Point2f val);
+void Mat_SetPoint3f(Mat m, int x, int y, Point3f val);
 void Mat_SetDouble(Mat m, int row, int col, double val);
 void Mat_SetDouble3(Mat m, int x, int y, int z, double val);
 

@@ -166,6 +166,12 @@ type Point2f struct {
 	Y float32
 }
 
+type Point3f struct {
+	X float32
+	Y float32
+	Z float32
+}
+
 var ErrEmptyByteSlice = errors.New("empty byte array")
 
 // Mat represents an n-dimensional dense numerical single-channel
@@ -222,6 +228,11 @@ func NewMatFromBytes(rows int, cols int, mt MatType, data []byte) (Mat, error) {
 		return Mat{}, err
 	}
 	return newMat(C.Mat_NewFromBytes(C.int(rows), C.int(cols), C.int(mt), *cBytes)), nil
+}
+
+// NewMatFromPtr
+func NewMatFromPtr(p unsafe.Pointer) Mat {
+	return Mat{p: C.Mat(p)}
 }
 
 // FromPtr returns a new Mat with a specific size and type, initialized from a Mat Ptr.
@@ -672,6 +683,23 @@ func (m *Mat) SetFloatAt(row int, col int, val float32) {
 // in this Mat expecting it to be of type float aka CV_32F.
 func (m *Mat) SetFloatAt3(x, y, z int, val float32) {
 	C.Mat_SetFloat3(m.p, C.int(x), C.int(y), C.int(z), C.float(val))
+}
+
+func (m *Mat) SetPoint3fAt(x, y int, val Point3f) {
+	pt := C.struct_Point3f{
+		x: C.float(val.X),
+		y: C.float(val.Y),
+		z: C.float(val.Z),
+	}
+	C.Mat_SetPoint3f(m.p, C.int(x), C.int(y), pt)
+}
+
+func (m *Mat) SetPoint2fAt(x, y int, val Point2f) {
+	pt := C.struct_Point2f{
+		x: C.float(val.X),
+		y: C.float(val.Y),
+	}
+	C.Mat_SetPoint2f(m.p, C.int(x), C.int(y), pt)
 }
 
 // SetDoubleAt sets a value at a specific row/col
@@ -1422,16 +1450,17 @@ func MeanStdDev(src Mat, dst *Mat, dstStdDev *Mat) {
 // https://docs.opencv.org/master/d2/de8/group__core__array.html#ga7d7b4d6c6ee504b30a20b1680029c7b4
 //
 func Merge(mv []Mat, dst *Mat) {
-	cMatArray := make([]C.Mat, len(mv))
-	for i, r := range mv {
-		cMatArray[i] = r.p
-	}
-	cMats := C.struct_Mats{
-		mats:   (*C.Mat)(&cMatArray[0]),
-		length: C.int(len(mv)),
-	}
+	C.Mat_Merge(toCMats(mv), dst.p)
+}
 
-	C.Mat_Merge(cMats, dst.p)
+// NewMatsFromPtr creates a new []Mat by using a C.struct_Mats pointer
+func NewMatsFromPtr(ptr unsafe.Pointer) []Mat {
+	cMats := (*C.struct_Mats)(ptr)
+	mv := make([]Mat, cMats.length)
+	for i := C.int(0); i < cMats.length; i++ {
+		mv[i].p = C.Mats_get(*cMats, i)
+	}
+	return mv
 }
 
 // Min calculates per-element minimum of two arrays or an array and a scalar.
@@ -1963,6 +1992,17 @@ func toCPoints2f(points []Point2f) C.struct_Points2f {
 	return C.struct_Points2f{
 		points: (*C.Point2f)(&cPointSlice[0]),
 		length: C.int(len(points)),
+	}
+}
+
+func toCMats(mats []Mat) C.struct_Mats {
+	cMatArray := make([]C.Mat, len(mats))
+	for i, r := range mats {
+		cMatArray[i] = r.p
+	}
+	return C.struct_Mats{
+		mats:   (*C.Mat)(&cMatArray[0]),
+		length: C.int(len(mats)),
 	}
 }
 

@@ -20,6 +20,25 @@ Mat GetOptimalNewCameraMatrixWithParams(Mat cameraMatrix,Mat distCoeffs,Size siz
 void Undistort(Mat src, Mat dst, Mat cameraMatrix, Mat distCoeffs, Mat newCameraMatrix);
 bool FindChessboardCorners(Mat image, Size patternSize, Mat corners, int flags);
 void DrawChessboardCorners(Mat image, Size patternSize, Mat corners, bool patternWasFound);
+// double CalibrateFisheyeCamera(
+//     Mat objectPoints,
+//     Mat imagePoints,
+//     Size imageSize,
+//     Mat cameraMatrix,
+//     Mat distCoeffs,
+//     Mats* outRvecs,
+//     Mats* outTvecs,
+//     int flags);
+double CalibrateCamera(
+    Mats objectPoints,
+    Mats imagePoints,
+    Size imageSize,
+    Mat cameraMatrix,
+    Mat distCoeffs,
+    Mats* outRvecs,
+    Mats* outTvecs,
+    int flags);
+
 #ifdef __cplusplus
 }
 #endif

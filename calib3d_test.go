@@ -233,3 +233,25 @@ func TestFindChessboard(t *testing.T) {
 		return
 	}
 }
+
+func TestCalibrateCamera(t *testing.T) {
+	img := IMRead("images/chessboard_4x6.png", IMReadUnchanged)
+	defer img.Close()
+
+	src := NewMatWithSize(4, 4, MatTypeCV8U)
+	defer src.Close()
+	src2 := NewMatWithSize(4, 4, MatTypeCV8U)
+	defer src2.Close()
+	src3 := NewMatWithSize(4, 4, MatTypeCV8U)
+	defer src3.Close()
+
+	size := image.Point{4, 4}
+	cameraMatrix := NewMat()
+	defer cameraMatrix.Close()
+	distCoeffs := NewMat()
+	defer distCoeffs.Close()
+	flags := 0
+
+	ret := CalibrateCamera([]Mat{src, src2, src3}, []Mat{src, src2, src3}, size, cameraMatrix, distCoeffs, flags)
+	t.Logf("calib err: %f", ret)
+}
